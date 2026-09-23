@@ -24,7 +24,7 @@ export default async function MeusAgendamentos() {
       </div>
       <div className="mx-auto max-w-2xl p-4">
         <h1 className="text-2xl font-extrabold tracking-tight">Meus agendamentos</h1>
-        <p className="mt-1 text-sm text-slate-500">Agendamentos como visitante aparecem pelo link de confirmação recebido na hora.</p>
+        <p className="mt-1 text-sm text-slate-500">Feitos logado aparecem aqui. Os de visitante, pelo link de confirmação.</p>
         <div className="mt-4 space-y-2">
           {(mine || []).map((a: Record<string, unknown>) => (
             <div key={a.id as string} className="card">

@@ -14,6 +14,7 @@ Site de agendamento multi-negócio estilo Booksy para qualquer área: salão, ba
 
 ## 2. Fluxos prontos
 
+- Auth: `/login` (entrar, criar dono/cliente, Google, recuperar senha), `/nova-senha`, `/conta`, `/auth/callback` (OAuth/confirmação de e-mail)
 - Catálogo: `/explorar` (filtro categoria + busca, qualquer negócio)
 - Público: `/b/[slug]` booking visitante → POST `/api/book` (service_role, anti-choque) → tela sucesso com `/api/ics/[token]` + `/c/[token]`
 - Confirmação: `/c/[token]` SIM/NÃO → POST `/api/confirm`
@@ -29,6 +30,7 @@ Site de agendamento multi-negócio estilo Booksy para qualquer área: salão, ba
 ## 4. Próximos passos (pós-piloto)
 
 - [x] Tela de horários no dashboard (presets + grade semanal + exceções)
+- [x] Auth completa (dono/cliente, Google, recuperar senha, /conta, booking vinculado ao logado)
 - [ ] Vincular `client_profile_id` quando logado agenda (hoje só guest)
 - [ ] Vitrine Paid `/v/[slug]` (logo/cor/banner) + Mercado Pago webhook
 - [ ] Google Calendar OAuth 2-vias

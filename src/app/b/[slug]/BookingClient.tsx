@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { buildFreeSlots, formatSlot } from '@/lib/slots';
+import { createClient } from '@/lib/supabase/client';
 import type { Availability, Business, Professional, Service } from '@/lib/types';
 
 type ApptLite = { professional_id: string; inicio: string; fim: string; status: string };
@@ -44,6 +45,24 @@ export default function BookingClient({
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<{ token: string; quando: string } | null>(null);
   const [error, setError] = useState('');
+  const [logged, setLogged] = useState(false);
+
+  // Logado? Preenche nome/Whats do perfil e vincula o agendamento à conta.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      setLogged(true);
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('nome, whatsapp')
+        .eq('id', data.session.user.id)
+        .single();
+      const p = prof as { nome: string; whatsapp: string } | null;
+      if (p?.nome) setNome((v) => v || p.nome);
+      if (p?.whatsapp) setWhats((v) => v || p.whatsapp);
+    });
+  }, []);
 
   const service = services.find((s) => s.id === serviceId);
 
@@ -203,6 +222,11 @@ export default function BookingClient({
 
       <div className="card">
         <Step n="5" t="Seus dados — sem criar conta" />
+        {logged && (
+          <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800 ring-1 ring-emerald-100">
+            Logado — este agendamento entra em <a href="/meus-agendamentos" className="underline">Meus agendamentos</a>.
+          </p>
+        )}
         <input className="input mt-2" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)} />
         <input className="input mt-2" placeholder="WhatsApp (DDD + número)" inputMode="tel" value={whats} onChange={(e) => setWhats(e.target.value)} />
         {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}

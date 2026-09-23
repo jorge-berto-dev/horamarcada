@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase, createServerSupabase } from '@/lib/supabase/server';
 import { overlaps } from '@/lib/slots';
 
-// POST /api/book — agendamento visitante (sem login), usa service_role no servidor.
+// POST /api/book — agendamento visitante (sem login) ou logado (vincula client_profile_id).
+// Validação e choque checados no servidor com service_role.
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -56,6 +57,7 @@ export async function POST(req: Request) {
         guest_nome: String(guest_nome).slice(0, 80),
         guest_whatsapp: String(guest_whatsapp).slice(0, 20),
         status: 'pendente',
+        client_profile_id: await currentUserId(),
       })
       .select('id, token_publico, inicio, fim')
       .single();
@@ -65,5 +67,16 @@ export async function POST(req: Request) {
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Erro interno';
     return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
+// Se o navegador tem sessão, vincula o agendamento à conta (sem exigir login).
+async function currentUserId(): Promise<string | null> {
+  try {
+    const supabase = createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || null;
+  } catch {
+    return null;
   }
 }

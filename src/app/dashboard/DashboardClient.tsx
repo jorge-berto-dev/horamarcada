@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import { waLink, reminderBatchMessage } from '@/lib/wame';
 import type { Appointment, Availability, AvailabilityException, Business, Professional, Service } from '@/lib/types';
 import { CATEGORIAS } from '@/lib/types';
@@ -19,6 +20,7 @@ export default function DashboardClient({
   exceptions: AvailabilityException[];
 }) {
   const supabase = createClient();
+  const router = useRouter();
   const [bizForm, setBizForm] = useState({ nome: '', slug: '', whatsapp: '', categoria: 'beleza', descricao: '' });
   const [msg, setMsg] = useState('');
 
@@ -57,7 +59,13 @@ export default function DashboardClient({
           <a href="/" aria-label="HoraMarcada"><Logo size={26} /></a>
           <div className="flex items-center gap-3 text-sm">
             <a href="/explorar" className="font-bold text-slate-500 hover:text-slate-900">Explorar</a>
-            <a href="/meus-agendamentos" className="font-bold text-slate-500 hover:text-slate-900">Sou cliente</a>
+            <a href="/conta" className="font-bold text-slate-500 hover:text-slate-900">Conta</a>
+            <button
+              onClick={async () => { await supabase.auth.signOut(); router.push('/'); router.refresh(); }}
+              className="font-bold text-slate-500 hover:text-slate-900"
+            >
+              Sair
+            </button>
           </div>
         </div>
       </div>
