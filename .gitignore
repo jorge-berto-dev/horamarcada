@@ -28,6 +28,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# sessões locais opencode (log de conversa, não vai pro deploy)
+session-*.md
+
 # vercel
 .vercel
 

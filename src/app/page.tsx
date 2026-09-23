@@ -1,113 +1,36 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <main className="mx-auto max-w-3xl p-6">
+      <p className="text-sm font-bold text-green-700">PILOTO ABERTO • GRÁTIS • QUALQUER NEGÓCIO</p>
+      <h1 className="mt-2 text-4xl font-extrabold">Agenda online para salão, clínica, barbearia e serviços</h1>
+      <p className="mt-3 text-lg text-gray-600">
+        Crie sua página em 5 minutos, divulgue seu link e receba agendamentos.
+        Cliente agenda como visitante, confirma pelo WhatsApp e adiciona na agenda do celular.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2">
+        <a href="/dashboard" className="rounded-lg bg-black px-5 py-3 font-bold text-white">Cadastrar meu negócio grátis</a>
+        <a href="/explorar" className="rounded-lg bg-white px-5 py-3 font-bold shadow">Explorar negócios</a>
+        <a href="/login" className="rounded-lg px-5 py-3 underline">Entrar</a>
       </div>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl bg-white p-4 shadow"><b>1. Free padrão</b><p className="text-sm text-gray-600">Link /b/seu-negocio com serviços, profissionais e horários livres. Funciona para beleza, saúde, bem-estar e serviços.</p></div>
+        <div className="rounded-xl bg-white p-4 shadow"><b>2. Confirmação</b><p className="text-sm text-gray-600">Link /c/token com SIM/NÃO + botão WhatsApp + .ics grátis. Reduz falta.</p></div>
+        <div className="rounded-xl bg-white p-4 shadow"><b>3. Paid vitrine</b><p className="text-sm text-gray-600">Em breve: página /v/ personalizada + Mercado Pago.</p></div>
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="mt-8 rounded-xl bg-white p-4 shadow">
+        <h2 className="font-bold">Como testar (5 min, qualquer área)</h2>
+        <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
+          <li>Copie <code>.env.example</code> para <code>.env.local</code> e preencha Supabase (veja README).</li>
+          <li>Rode o SQL <code>supabase/migrations/0001_init.sql</code> e depois <code>0002_para_todos.sql</code>.</li>
+          <li><code>npm run dev</code> → crie conta em /login → crie negócio em /dashboard (escolha categoria).</li>
+          <li>Cadastre 1 serviço + 1 profissional + horários via SQL (exemplo no README).</li>
+          <li>Abra <code>/b/seu-slug</code> no celular e faça um agendamento visitante. Divulgue em /explorar.</li>
+        </ol>
       </div>
+
+      <p className="mt-6 text-xs text-gray-500">Contas Supabase/Vercel/MP no nome do responsável (16 anos). Não salve diagnóstico/laudo — só agenda (nome, WhatsApp, data).</p>
     </main>
   );
 }
