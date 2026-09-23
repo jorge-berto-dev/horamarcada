@@ -5,6 +5,20 @@ import { buildFreeSlots, formatSlot } from '@/lib/slots';
 import type { Availability, Business, Professional, Service } from '@/lib/types';
 
 type ApptLite = { professional_id: string; inicio: string; fim: string; status: string };
+type ExcLite = { professional_id: string; data: string; fechado: boolean; inicio: string | null; fim: string | null };
+
+function localKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function Step({ n, t }: { n: string; t: string }) {
+  return (
+    <span className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-xs text-white">{n}</span>
+      {t}
+    </span>
+  );
+}
 
 export default function BookingClient({
   business,
@@ -12,12 +26,14 @@ export default function BookingClient({
   professionals,
   availabilities,
   appointments,
+  exceptions,
 }: {
   business: Business;
   services: Service[];
   professionals: Professional[];
   availabilities: Availability[];
   appointments: ApptLite[];
+  exceptions: ExcLite[];
 }) {
   const [serviceId, setServiceId] = useState(services[0]?.id ?? '');
   const [profId, setProfId] = useState(professionals[0]?.id ?? '');
@@ -44,18 +60,25 @@ export default function BookingClient({
   }, []);
 
   const selectedDay = days[dayOffset];
+  const dayExc = exceptions.find((e) => e.professional_id === profId && selectedDay && e.data === localKey(selectedDay));
 
   const slots = useMemo(() => {
     if (!service || !profId || !selectedDay) return [];
+    // Exceção do dia (feriado/folga/horário especial) tem prioridade sobre a rotina semanal
+    const exc = exceptions.find((e) => e.professional_id === profId && e.data === localKey(selectedDay));
+    if (exc?.fechado) return [];
+    const rules = exc && exc.inicio && exc.fim
+      ? [{ id: 'exc', professional_id: profId, dia_semana: selectedDay.getDay(), inicio: exc.inicio, fim: exc.fim }]
+      : availabilities.filter((a) => a.professional_id === profId);
     return buildFreeSlots({
       date: selectedDay,
-      availabilities: availabilities.filter((a) => a.professional_id === profId),
+      availabilities: rules,
       appointments: appointments
         .filter((a) => a.professional_id === profId)
         .map((a) => ({ inicio: a.inicio, fim: a.fim, status: a.status as never })),
       duracaoMin: service.duracao_min,
     });
-  }, [service, profId, selectedDay, availabilities, appointments]);
+  }, [service, profId, selectedDay, availabilities, appointments, exceptions]);
 
   async function submit() {
     setError('');
@@ -93,19 +116,19 @@ export default function BookingClient({
   if (done) {
     const confirmUrl = `${location.origin}/c/${done.token}`;
     return (
-      <div className="rounded-xl bg-white p-6 shadow">
-        <h2 className="text-xl font-bold text-green-700">Agendado! 🎉</h2>
-        <p className="mt-2">Quando: <b>{done.quando}</b></p>
-        <p className="mt-1 text-sm text-gray-600">Guarde seu link de confirmação:</p>
-        <a className="break-all text-blue-700 underline" href={confirmUrl}>{confirmUrl}</a>
-        <div className="mt-4 flex flex-col gap-2">
-          <a href={`/api/ics/${done.token}`} className="rounded-lg bg-black px-4 py-2 text-center text-white">
-            Adicionar na agenda do celular (.ics)
+      <div className="card text-center">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl">✓</span>
+        <h2 className="mt-3 text-2xl font-extrabold tracking-tight">Horário reservado!</h2>
+        <p className="mt-1 text-slate-600"><b>{done.quando}</b> • {business.nome}</p>
+        <a className="mt-2 block break-all text-sm text-emerald-700 underline" href={confirmUrl}>{confirmUrl}</a>
+        <div className="mx-auto mt-5 flex max-w-sm flex-col gap-2">
+          <a href={`/api/ics/${done.token}`} className="rounded-full bg-slate-900 px-4 py-3 text-center text-sm font-bold text-white hover:bg-slate-700">
+            📅 Adicionar na agenda do celular
           </a>
-          <a href={confirmUrl} className="rounded-lg px-4 py-2 text-center text-white" style={{ background: business.cor }}>
-            Confirmar / Cancelar
+          <a href={confirmUrl} className="rounded-full bg-emerald-600 px-4 py-3 text-center text-sm font-bold text-white hover:bg-emerald-700">
+            Confirmar / remarcar
           </a>
-          <a href="/meus-agendamentos" className="text-center text-sm text-gray-600 underline">
+          <a href="/meus-agendamentos" className="text-center text-sm text-slate-500 underline">
             Crie uma conta para ver seus agendamentos
           </a>
         </div>
@@ -115,66 +138,84 @@ export default function BookingClient({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl bg-white p-4 shadow">
-        <label className="text-sm font-semibold">1. Serviço</label>
-        <select className="mt-1 w-full rounded-lg border p-2" value={serviceId} onChange={(e) => { setServiceId(e.target.value); setSlotIso(''); }}>
+      <div className="card">
+        <Step n="1" t="Escolha o serviço" />
+        <select className="input mt-2" value={serviceId} onChange={(e) => { setServiceId(e.target.value); setSlotIso(''); }}>
           {services.map((s) => (
             <option key={s.id} value={s.id}>{s.nome} • {s.duracao_min}min • R$ {Number(s.preco).toFixed(2)}</option>
           ))}
         </select>
-        {services.length === 0 && <p className="text-sm text-red-600">Nenhum serviço cadastrado ainda.</p>}
+        {services.length === 0 && <p className="mt-2 text-sm text-red-600">Nenhum serviço cadastrado ainda.</p>}
 
-        <label className="mt-3 block text-sm font-semibold">2. Profissional</label>
-        <select className="mt-1 w-full rounded-lg border p-2" value={profId} onChange={(e) => { setProfId(e.target.value); setSlotIso(''); }}>
+        <div className="mt-4"><Step n="2" t="Escolha o profissional" /></div>
+        <select className="input mt-2" value={profId} onChange={(e) => { setProfId(e.target.value); setSlotIso(''); }}>
           {professionals.map((p) => (
             <option key={p.id} value={p.id}>{p.nome}</option>
           ))}
         </select>
 
-        <label className="mt-3 block text-sm font-semibold">3. Dia</label>
-        <div className="mt-1 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-4"><Step n="3" t="Escolha o dia" /></div>
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
           {days.map((d, i) => (
             <button
               key={i}
               onClick={() => { setDayOffset(i); setSlotIso(''); }}
-              className={`min-w-[64px] rounded-lg border px-2 py-1 text-sm ${i === dayOffset ? 'bg-black text-white' : 'bg-white'}`}
+              className={`min-w-[68px] rounded-2xl border px-2 py-2 text-center text-sm transition ${
+                i === dayOffset
+                  ? 'border-slate-900 bg-slate-900 text-white shadow-soft'
+                  : 'border-slate-200 bg-white hover:border-slate-400'
+              }`}
             >
-              {d.toLocaleDateString('pt-BR', { weekday: 'short' })}<br />{d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+              <span className="block text-xs opacity-70">{d.toLocaleDateString('pt-BR', { weekday: 'short' })}</span>
+              <span className="block font-extrabold">{d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span>
             </button>
           ))}
         </div>
 
-        <label className="mt-3 block text-sm font-semibold">4. Horário ({slots.length} livres)</label>
-        <div className="mt-1 grid grid-cols-3 gap-2">
+        <div className="mt-4"><Step n="4" t={`Escolha o horário (${slots.length} livres)`} /></div>
+        {dayExc?.fechado && (
+          <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800 ring-1 ring-amber-100">
+            Fechado neste dia. Escolha outra data.
+          </p>
+        )}
+        <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
           {slots.map((s) => (
             <button
               key={s.toISOString()}
               onClick={() => setSlotIso(s.toISOString())}
-              className={`rounded-lg border px-2 py-1 text-sm ${slotIso === s.toISOString() ? 'bg-green-600 text-white' : 'bg-white'}`}
+              className={`rounded-xl border px-2 py-2 text-sm font-bold transition ${
+                slotIso === s.toISOString()
+                  ? 'border-emerald-600 bg-emerald-600 text-white shadow-soft'
+                  : 'border-slate-200 bg-white hover:border-emerald-400 hover:text-emerald-700'
+              }`}
             >
               {s.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
             </button>
           ))}
         </div>
-        {slots.length === 0 && <p className="mt-2 text-sm text-gray-500">Sem horários neste dia. Tente outro dia/profissional.</p>}
-        {slotIso && <p className="mt-2 text-sm">Escolhido: <b>{formatSlot(new Date(slotIso))}</b></p>}
+        {slots.length === 0 && <p className="mt-2 text-sm text-slate-500">Sem horários neste dia. Tente outro dia ou profissional.</p>}
+        {slotIso && (
+          <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800 ring-1 ring-emerald-100">
+            Escolhido: {formatSlot(new Date(slotIso))}
+          </p>
+        )}
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow">
-        <label className="text-sm font-semibold">5. Seus dados (sem criar conta)</label>
-        <input className="mt-1 w-full rounded-lg border p-2" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-        <input className="mt-2 w-full rounded-lg border p-2" placeholder="WhatsApp (DDD + número)" value={whats} onChange={(e) => setWhats(e.target.value)} />
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      <div className="card">
+        <Step n="5" t="Seus dados — sem criar conta" />
+        <input className="input mt-2" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)} />
+        <input className="input mt-2" placeholder="WhatsApp (DDD + número)" inputMode="tel" value={whats} onChange={(e) => setWhats(e.target.value)} />
+        {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
         <button
           onClick={submit}
           disabled={loading}
-          className="mt-3 w-full rounded-lg px-4 py-3 font-bold text-white disabled:opacity-50"
-          style={{ background: business.cor }}
+          className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-3.5 font-extrabold text-white shadow-soft transition hover:bg-emerald-700 active:scale-[0.99] disabled:opacity-50"
         >
-          {loading ? 'Agendando...' : 'Confirmar agendamento'}
+          {loading ? 'Reservando...' : 'Confirmar agendamento'}
         </button>
-        <p className="mt-2 text-center text-xs text-gray-500">Ao agendar você concorda em ser contatado no WhatsApp para confirmação.</p>
+        <p className="mt-2 text-center text-xs text-slate-400">Ao agendar você concorda em ser contatado no WhatsApp para confirmação.</p>
       </div>
+      <p className="pb-2 text-center text-xs text-slate-400">Feito com <b>HoraMarcada</b> • <a href="/explorar" className="underline">conheça outros negócios</a></p>
     </div>
   );
 }

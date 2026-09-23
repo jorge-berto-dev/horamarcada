@@ -14,6 +14,8 @@ export default async function DashboardPage() {
   let appointments: unknown[] = [];
   let services: unknown[] = [];
   let professionals: unknown[] = [];
+  let availabilities: unknown[] = [];
+  let exceptions: unknown[] = [];
   if (bizIds.length > 0) {
     const [a, s, p] = await Promise.all([
       supabase.from('appointments').select('*').in('business_id', bizIds).order('inicio', { ascending: true }).limit(100),
@@ -23,6 +25,15 @@ export default async function DashboardPage() {
     appointments = a.data || [];
     services = s.data || [];
     professionals = p.data || [];
+    const profIds = (professionals as { id: string }[]).map((x) => x.id);
+    if (profIds.length > 0) {
+      const [av, ex] = await Promise.all([
+        supabase.from('availabilities').select('*').in('professional_id', profIds),
+        supabase.from('availability_exceptions').select('*').in('professional_id', profIds).order('data'),
+      ]);
+      availabilities = av.data || [];
+      exceptions = ex.data || [];
+    }
   }
 
   return (
@@ -32,6 +43,8 @@ export default async function DashboardPage() {
       appointments={appointments as never[]}
       services={services as never[]}
       professionals={professionals as never[]}
+      availabilities={availabilities as never[]}
+      exceptions={exceptions as never[]}
     />
   );
 }

@@ -5,20 +5,11 @@ Site de agendamento multi-negócio estilo Booksy para qualquer área: salão, ba
 ## 1. Subir em 10 min (grátis)
 
 1. Crie projeto em supabase.com (conta do responsável, você opera).
-2. Supabase > SQL Editor > rode `supabase/migrations/0001_init.sql` e depois `0002_para_todos.sql`.
+2. Supabase > SQL Editor > rode `supabase/migrations/0001_init.sql`, depois `0002_para_todos.sql` e `0003_exceptions.sql`.
 3. Copie: `cp .env.example .env.local` e preencha `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 4. `npm install && npm run dev` → http://localhost:3000
 5. Crie conta em `/login` (vira dono), crie negócio em `/dashboard` (slug ex: `salao-bela-vista`, categoria: beleza/saude/servicos).
-6. Cadastre serviço + profissional no painel, e horários via SQL:
-```sql
--- pegue o id: select id, nome from professionals;
-insert into availabilities (professional_id, dia_semana, inicio, fim) values
-('PROF_ID', 1, '08:00','18:00'),
-('PROF_ID', 2, '08:00','18:00'),
-('PROF_ID', 3, '08:00','18:00'),
-('PROF_ID', 4, '08:00','18:00'),
-('PROF_ID', 5, '08:00','12:00');
-```
+6. Cadastre serviço + profissional no painel e configure os horários na seção **⏰ Horários de atendimento** (modelo pronto + grade semanal + exceções de feriado, tudo pela tela, sem SQL).
 7. Abra `/b/seu-slug` no celular e agende. Veja todos em `/explorar`.
 
 ## 2. Fluxos prontos
@@ -37,7 +28,7 @@ insert into availabilities (professional_id, dia_semana, inicio, fim) values
 
 ## 4. Próximos passos (pós-piloto)
 
-- [ ] Tela de availabilities no dashboard (hoje é via SQL)
+- [x] Tela de horários no dashboard (presets + grade semanal + exceções)
 - [ ] Vincular `client_profile_id` quando logado agenda (hoje só guest)
 - [ ] Vitrine Paid `/v/[slug]` (logo/cor/banner) + Mercado Pago webhook
 - [ ] Google Calendar OAuth 2-vias

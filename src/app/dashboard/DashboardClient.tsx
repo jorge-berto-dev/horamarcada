@@ -2,17 +2,21 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { waLink, reminderBatchMessage } from '@/lib/wame';
-import type { Appointment, Business, Professional, Service } from '@/lib/types';
+import type { Appointment, Availability, AvailabilityException, Business, Professional, Service } from '@/lib/types';
 import { CATEGORIAS } from '@/lib/types';
+import Logo from '@/components/Logo';
+import AvailabilityEditor from './AvailabilityEditor';
 
 export default function DashboardClient({
-  userEmail, businesses, appointments, services, professionals,
+  userEmail, businesses, appointments, services, professionals, availabilities, exceptions,
 }: {
   userEmail: string;
   businesses: Business[];
   appointments: (Appointment & { services?: { nome: string } })[];
   services: Service[];
   professionals: Professional[];
+  availabilities: Availability[];
+  exceptions: AvailabilityException[];
 }) {
   const supabase = createClient();
   const [bizForm, setBizForm] = useState({ nome: '', slug: '', whatsapp: '', categoria: 'beleza', descricao: '' });
@@ -47,9 +51,19 @@ export default function DashboardClient({
   const [profName, setProfName] = useState('');
 
   return (
-    <main className="mx-auto max-w-4xl p-4">
-      <h1 className="text-2xl font-bold">Painel do dono</h1>
-      <p className="text-sm text-gray-600">{userEmail} • <a href="/meus-agendamentos" className="underline">ver como cliente</a> • <a href="/" className="underline">início</a></p>
+    <main className="min-h-screen">
+      <div className="border-b border-slate-100 bg-white/85 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+          <a href="/" aria-label="HoraMarcada"><Logo size={26} /></a>
+          <div className="flex items-center gap-3 text-sm">
+            <a href="/explorar" className="font-bold text-slate-500 hover:text-slate-900">Explorar</a>
+            <a href="/meus-agendamentos" className="font-bold text-slate-500 hover:text-slate-900">Sou cliente</a>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto max-w-4xl p-4">
+      <h1 className="text-2xl font-extrabold tracking-tight">Painel do dono</h1>
+      <p className="text-sm text-slate-500">{userEmail}</p>
 
       <section className="mt-4 rounded-xl bg-white p-4 shadow">
         <h2 className="font-bold">+ Novo negócio (qualquer área)</h2>
@@ -90,7 +104,6 @@ export default function DashboardClient({
                 <input className="w-full rounded border p-1 text-sm" placeholder="Novo profissional" value={profName} onChange={(e) => setProfName(e.target.value)} />
                 <button onClick={() => quickAdd('professionals', b.id, profName)} className="rounded bg-black px-2 text-white">+</button>
               </div>
-              <p className="mt-1 text-xs text-gray-500">Horários semanais: cadastre em SQL por enquanto (tabela availabilities: dia 1-5, 08:00-18:00). Vamos criar tela na próxima versão.</p>
             </div>
           </div>
 
@@ -117,7 +130,16 @@ export default function DashboardClient({
           ))}
         </section>
       ))}
-      {msg && <p className="mt-3 text-sm">{msg}</p>}
+      {msg && <p className="mt-3 text-sm font-semibold">{msg}</p>}
+
+      <AvailabilityEditor
+        businesses={businesses}
+        professionals={professionals}
+        availabilities={availabilities}
+        exceptions={exceptions}
+        services={services}
+      />
+      </div>
     </main>
   );
 }

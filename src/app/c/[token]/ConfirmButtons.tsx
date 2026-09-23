@@ -20,13 +20,13 @@ export default function ConfirmButtons({ token }: { token: string }) {
 
   return (
     <div className="mt-4 space-y-2">
-      <button onClick={() => act('confirmado')} disabled={!!loading} className="w-full rounded-lg bg-green-600 px-4 py-2 font-bold text-white disabled:opacity-50">
-        {loading === 'confirmado' ? '...' : 'SIM, confirmo'}
+      <button onClick={() => act('confirmado')} disabled={!!loading} className="w-full rounded-full bg-emerald-600 px-4 py-2.5 font-extrabold text-white transition hover:bg-emerald-700 disabled:opacity-50">
+        {loading === 'confirmado' ? '...' : 'SIM, confirmo presença'}
       </button>
-      <button onClick={() => act('cancelado')} disabled={!!loading} className="w-full rounded-lg bg-red-100 px-4 py-2 font-bold text-red-700 disabled:opacity-50">
-        {loading === 'cancelado' ? '...' : 'NÃO, preciso cancelar'}
+      <button onClick={() => act('cancelado')} disabled={!!loading} className="w-full rounded-full bg-red-50 px-4 py-2.5 font-bold text-red-700 ring-1 ring-red-100 transition hover:bg-red-100 disabled:opacity-50">
+        {loading === 'cancelado' ? '...' : 'Preciso cancelar'}
       </button>
-      {msg && <p className="text-sm">{msg}</p>}
+      {msg && <p className="text-sm font-semibold">{msg}</p>}
     </div>
   );
 }

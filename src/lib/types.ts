@@ -49,6 +49,16 @@ export type Availability = {
   fim: string; // "18:00"
 };
 
+export type AvailabilityException = {
+  id: string;
+  professional_id: string;
+  data: string; // "2026-09-25"
+  fechado: boolean;
+  inicio: string | null;
+  fim: string | null;
+  motivo: string;
+};
+
 export type Appointment = {
   id: string;
   business_id: string;
